@@ -355,21 +355,7 @@
             const extManage = url.split("/").slice(0, 3).join("/") + "/";
             window.open(extManage, "_blank");
 
-<<<<<<< Updated upstream
-            /* Exthang3r modified a bit, Origional by BlobbyBoi*/
 
-        document.addEventListener("DOMContentLoaded", () => {
-        const slider = document.getElementById("slider");
-        const deviceMemory = navigator.deviceMemory || 8;
-        const defaultIframeCount = Math.round(deviceMemory * 500);
-        const maxIframeCount = Math.round(deviceMemory * 1500);
-
-        slider.value = defaultIframeCount;
-        slider.max = maxIframeCount;
-
-        populateSelectOptions();
-        });
-=======
             setTimeout(() => {
                 let killURL = "https://" + "%40".repeat(slider);
                 ext.location.href = killURL;
@@ -384,7 +370,6 @@
             	}, 1000);
             }, 100);
         }
->>>>>>> Stashed changes
 
         async function checkExtensionURL(url) {
             try {
